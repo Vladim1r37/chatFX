@@ -52,6 +52,7 @@ public class ClientHandler {
                                     nick = newNick;
                                     server.subscribe(this);
                                     server.addByNick(nick, this);
+                                    AuthService.getBlacklist(blackList, nick);
                                     break;
                                     } else sendMsg("Учетная запись уже используется!");
                                 } else {
@@ -116,6 +117,9 @@ public class ClientHandler {
                         socket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
+                    }
+                    if (!blackList.isEmpty()) {
+                        AuthService.saveBlacklist(blackList, nick);
                     }
                     server.unsubscribe(this);
                     server.removeByNick(nick);

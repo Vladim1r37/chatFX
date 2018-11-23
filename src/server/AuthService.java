@@ -42,7 +42,7 @@ public class AuthService {
                 return false;
             }
             query = String.format("insert into main (login, password, nickname)\n" +
-                    "values ('%s', '%s', '%s')\n", login, password, nickname);
+                    "values ('%s', '%s', '%s')", login, password, nickname);
             stmt.executeUpdate(query);
 
         } catch (SQLException e) {
@@ -50,6 +50,33 @@ public class AuthService {
             return false;
         }
         return true;
+    }
+
+    public static void saveBlacklist(ArrayList<String> blackList, String nick) {
+        String query = String.format("create table if not exists blacklist_%s (nick TEXT)", nick);
+        try {
+            stmt.executeUpdate(query);
+            stmt.executeUpdate("delete from blacklist_" + nick);
+            for (String v : blackList) {
+                stmt.executeUpdate(String.format("insert into blacklist_%s (nick)\n" +
+                        "values ('%s')", nick, v));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void getBlacklist(ArrayList<String> blackList, String nick) {
+        String query = "select nick from blacklist_" + nick;
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                blackList.add(rs.getString("nick"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 

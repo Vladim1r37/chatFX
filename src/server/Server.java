@@ -44,18 +44,32 @@ public class Server {
         }
     }
 
-    public void broadcastMsg(String msg) {
+    public boolean isNickBusy(String nick) {
         for (ClientHandler o : clients) {
-            o.sendMsg(msg);
+            if (o.getNick().equalsIgnoreCase(nick)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void broadcastMsg(ClientHandler from, String msg) {
+        for (ClientHandler o : clients) {
+            if (!o.checkBlackList(from.getNick()))
+                o.sendMsg(msg);
         }
     }
 
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastClientList();
+
     }
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastClientList();
+
     }
 
     public void addByNick(String nick, ClientHandler clientHandler) {
@@ -68,5 +82,17 @@ public class Server {
 
     public ClientHandler getByNick(String nick) {
         return clientsByNick.get(nick);
+    }
+
+    public void broadcastClientList() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/clientlist ");
+        for (ClientHandler o : clients) {
+            sb.append(o.getNick() + " ");
+        }
+        String out = sb.toString();
+        for (ClientHandler o : clients) {
+            o.sendMsg(out);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package server;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class AuthService {
     private static Connection connection;
@@ -30,6 +31,27 @@ public class AuthService {
         }
         return null;
     }
+
+    public static boolean signUp(String login, String password, String nickname) {
+        String query = String.format("select id from main\n" +
+                "where login = '%s'\n" +
+                "or nickname = '%s'", login, nickname);
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return false;
+            }
+            query = String.format("insert into main (login, password, nickname)\n" +
+                    "values ('%s', '%s', '%s')\n", login, password, nickname);
+            stmt.executeUpdate(query);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 
     public static void disconnect(){
         try {
